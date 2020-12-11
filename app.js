@@ -90,7 +90,7 @@ io.on('connection', function(socket) {
         //     }
         // }
         socket.emit('init', randomData)
-        console.log(playerName.count, "<<<")
+        console.log(playerName, "<<<")
         console.log('masuk siniiiii', payload)
         io.emit('addPlayerName', playerName)
     })
