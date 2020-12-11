@@ -81,7 +81,7 @@ io.on('connection', function(socket) {
         io.emit('serverPass', playerName)
         generateData()
         // socket.emit('init', randomData)
-        console.log(playerName)
+        // console.log(playerName)
         for(let i = 0; i < playerName.length; i++) {
             for (let j = 1; j < limit; j++) {
                 if(playerName[i].count == j) {
