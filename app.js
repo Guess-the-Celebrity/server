@@ -59,27 +59,40 @@ const stars = [
         image: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/45f18rm5Zqy0rJaXLYDkQi3Asbc.jpg'
     }
 ]
-let randomNum = Math.floor(Math.random() * stars.length)
-let randomData = stars[randomNum]
+// let randomNum = Math.floor(Math.random() * stars.length)
+// let randomData = stars[randomNum]
 function generateData () {
-    randomNum = Math.floor(Math.random() * stars.length)
-    randomData = stars[randomNum]
+    let randomNum = Math.floor(Math.random() * stars.length)
+    let randomData = stars[randomNum]
+    return randomData
 }
-for( let i = 0; i < limit; i++) {
-    dataQuiz.push(generateData())
+function generatePerson () {
+    dataQuiz = []
+    for( let i = 0; i < limit; i++) {
+        dataQuiz.push(generateData())
+    }
 }
-let indexQuiz = 0
+
 io.on('connection', function(socket) {
     // console.log(dataQuiz, '=====')
+    generatePerson()
     socket.on('answer', function(payload){
         playerName = payload
         io.emit('serverPass', playerName)
         generateData()
-        socket.emit('init', randomData)
-
+        // socket.emit('init', randomData)
+        console.log(playerName)
+        for(let i = 0; i < playerName.length; i++) {
+            for (let j = 1; j < limit; j++) {
+                if(playerName[i].count == j) {
+                    socket.emit('init', dataQuiz[j])
+                }
+            }
+        }
     })
     socket.on('end', function(payload){
         playerName = []
+        generatePerson()
         io.emit('gameDone', payload)
     })
     socket.on('inputUsername', function(payload) {
@@ -89,9 +102,9 @@ io.on('connection', function(socket) {
         //         socket.emit('init', dataQuiz[playerName[i].count])
         //     }
         // }
-        socket.emit('init', randomData)
-        console.log(playerName.count, "<<<")
-        console.log('masuk siniiiii', payload)
+        // socket.emit('init', randomData)
+        // console.log(dataQuiz)
+        socket.emit('init', dataQuiz[0])
         io.emit('addPlayerName', playerName)
     })
 })
