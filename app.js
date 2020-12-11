@@ -3,7 +3,10 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const PORT = process.env.PORT || 3000
 
-let hasil = []
+let count = 0
+let limit = 3
+let dataQuiz = []
+let playerName = []
 const stars = [
     {
         id: 0,
@@ -56,21 +59,40 @@ const stars = [
         image: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/45f18rm5Zqy0rJaXLYDkQi3Asbc.jpg'
     }
 ]
+let randomNum = Math.floor(Math.random() * stars.length)
+let randomData = stars[randomNum]
+function generateData () {
+    randomNum = Math.floor(Math.random() * stars.length)
+    randomData = stars[randomNum]
+}
+for( let i = 0; i < limit; i++) {
+    dataQuiz.push(generateData())
+}
+let indexQuiz = 0
 io.on('connection', function(socket) {
-    socket.emit('init', stars)
+    // console.log(dataQuiz, '=====')
     socket.on('answer', function(payload){
-        if(stars[payload.id].name.toLowerCase() == payload.input.toLowerCase()){
-            hasil.push({
-                username: payload.username,
-                count: payload.count
-            })
-            socket.emit('init', stars)
-            socket.broadcast.emit('serverPass', hasil)
-        }
+        playerName = payload
+        io.emit('serverPass', playerName)
+        generateData()
+        socket.emit('init', randomData)
+
     })
     socket.on('end', function(payload){
-        hasil = []
-        socket.broadcast.emit('gameDone', payload)
+        playerName = []
+        io.emit('gameDone', payload)
+    })
+    socket.on('inputUsername', function(payload) {
+        playerName.push({username: payload, count: 0})
+        // for(let i = 0; i < playerName.length; i++) {
+        //     if(playerName[i].username === payload) {
+        //         socket.emit('init', dataQuiz[playerName[i].count])
+        //     }
+        // }
+        socket.emit('init', randomData)
+        console.log(playerName.count, "<<<")
+        console.log('masuk siniiiii', payload)
+        io.emit('addPlayerName', playerName)
     })
 })
 
